@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Event Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; background: #F5F5F5; color: #414042; min-height: 100vh; }
+
+  .header { background: #414042; padding: 1.25rem; display: flex; align-items: center; gap: 10px; }
+  .logo-dots { display: flex; gap: 6px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; }
+  .dot.blue { background: #29ABE2; }
+  .dot.green { background: #8DC63F; }
+  .header-text h1 { color: white; font-size: 18px; font-weight: 600; }
+  .header-text p { color: #aaa; font-size: 12px; }
+
+  .tabs { display: flex; background: white; border-bottom: 2px solid #E0E0E0; }
+  .tab { flex: 1; padding: 12px; text-align: center; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #29ABE2; border-bottom-color: #29ABE2; font-weight: 600; }
+
+  .content { padding: 1rem; display: none; }
+  .content.active { display: block; }
+
+  /* COUNTDOWN */
+  .countdown-card { background: #414042; border-radius: 16px; padding: 1.5rem; text-align: center; margin-bottom: 1rem; }
+  .countdown-title { color: #aaa; font-size: 13px; margin-bottom: 0.5rem; }
+  .countdown-event { color: white; font-size: 20px; font-weight: 600; margin-bottom: 1rem; }
+  .countdown-grid { display: flex; gap: 10px; justify-content: center; }
+  .countdown-box { background: #29ABE2; border-radius: 10px; padding: 10px 14px; min-width: 60px; }
+  .countdown-num { color: white; font-size: 28px; font-weight: 700; }
+  .countdown-label { color: rgba(255,255,255,0.7); font-size: 10px; margin-top: 2px; }
+
+  .info-card { background: white; border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 12px; }
+  .info-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .info-icon.blue { background: #E8F7FC; }
+  .info-icon.green { background: #F2F9E7; }
+  .info-icon.gray { background: #F5F5F5; }
+  .info-label { font-size: 12px; color: #888; }
+  .info-value { font-size: 15px; font-weight: 500; color: #414042; margin-top: 2px; }
+
+  /* CHECKLIST */
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #888; padding: 0.75rem 0 0.4rem; }
+  .check-item { background: white; border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .check-item:active { background: #F5F7FA; }
+  .checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid #E0E0E0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+  .checkbox.checked { background: #8DC63F; border-color: #8DC63F; }
+  .checkbox.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 600; }
+  .check-text { flex: 1; font-size: 14px; color: #414042; }
+  .check-text.done { text-decoration: line-through; color: #aaa; }
+  .check-tag { font-size: 11px; padding: 3px 8px; border-radius: 20px; background: #F5F5F5; color: #888; }
+  .check-tag.blue { background: #E8F7FC; color: #29ABE2; }
+  .check-tag.green { background: #F2F9E7; color: #8DC63F; }
+
+  .progress-wrap { background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-label { font-size: 13px; color: #414042; font-weight: 500; }
+  .progress-pct { font-size: 13px; color: #8DC63F; font-weight: 600; }
+  .progress-bar-bg { height: 8px; background: #F0F0F0; border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill { height: 8px; background: linear-gradient(90deg, #29ABE2, #8DC63F); border-radius: 4px; transition: width 0.4s ease; }
+
+  /* NOTIZEN */
+  .note-area { background: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+  .note-area textarea { width: 100%; border: none; outline: none; font-family: inherit; font-size: 14px; color: #414042; resize: none; min-height: 150px; }
+  .save-note-btn { width: 100%; padding: 12px; background: #29ABE2; color: white; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+  .save-note-btn:active { background: #1e90c2; }
+  .saved-msg { text-align: center; color: #8DC63F; font-size: 13px; margin-top: 8px; min-height: 20px; }
+
+  .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); background: #414042; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-dots">
+    <div class="dot blue"></div>
+    <div class="dot green"></div>
+  </div>
+  <div class="header-text">
+    <h1>animations planet</h1>
+    <p>Event Dashboard</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('countdown')">⏱ Countdown</div>
+  <div class="tab" onclick="switchTab('checklist')">✅ Checkliste</div>
+  <div class="tab" onclick="switchTab('notizen')">📝 Notizen</div>
+</div>
+
+<div class="content active" id="tab-countdown">
+  <div class="countdown-card">
+    <div class="countdown-title">Nächstes Event</div>
+    <div class="countdown-event">EVN Mitarbeiterfest</div>
+    <div class="countdown-grid">
+      <div class="countdown-box"><div class="countdown-num" id="cd-days">0</div><div class="countdown-label">Tage</div></div>
+      <div class="countdown-box"><div class="countdown-num" id="cd-hours">0</div><div class="countdown-label">Std</div></div>
+      <div class="countdown-box" style="background:#8DC63F"><div class="countdown-num" id="cd-mins">0</div><div class="countdown-label">Min</div></div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-icon blue">📍</div>
+    <div><div class="info-label">Ort</div><div class="info-value">Arena Nova, Wiener Neustadt</div></div>
+  </div>
+  <div class="info-card">
+    <div class="info-icon green">🕑</div>
+    <div><div class="info-label">Treffpunkt</div><div class="info-value">Spätestens 13:45 Uhr</div></div>
+  </div>
+  <div class="info-card">
+    <div class="info-icon gray">👥</div>
+    <div><div class="info-label">Team</div><div class="info-value">26 Personen</div></div>
+  </div>
+</div>
+
+<div class="content" id="tab-checklist">
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <div class="progress-label">Vorbereitung</div>
+      <div class="progress-pct" id="pct">0%</div>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="section-title">Vor dem Event</div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">WhatsApp-Gruppe erstellt</div><div class="check-tag blue">Komm.</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Alle Mitarbeiter bestätigt</div><div class="check-tag blue">Komm.</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Briefing-Dokument verschickt</div><div class="check-tag blue">Komm.</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Fahrteneinteilung kommuniziert</div><div class="check-tag blue">Komm.</div></div>
+
+  <div class="section-title">Material</div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Scanner für QR-Code vorhanden</div><div class="check-tag green">Material</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Stationsmaterial geprüft</div><div class="check-tag green">Material</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Wasser für Speakers bereit</div><div class="check-tag green">Material</div></div>
+
+  <div class="section-title">Am Eventtag</div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Teamfoto gemacht</div><div class="check-tag">Event</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Briefing vor Ort durchgeführt</div><div class="check-tag">Event</div></div>
+  <div class="check-item" onclick="toggleCheck(this)"><div class="checkbox"></div><div class="check-text">Alle Stationen besetzt</div><div class="check-tag">Event</div></div>
+</div>
+
+<div class="content" id="tab-notizen">
+  <div class="note-area">
+    <textarea id="noteText" placeholder="Notizen zum Event..."></textarea>
+  </div>
+  <button class="save-note-btn" onclick="saveNote()">Speichern</button>
+  <div class="saved-msg" id="savedMsg"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Countdown
+function updateCountdown() {
+  const target = new Date('2026-05-07T13:45:00');
+  const now = new Date();
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('cd-days').textContent = '0';
+    document.getElementById('cd-hours').textContent = '0';
+    document.getElementById('cd-mins').textContent = '0';
+    return;
+  }
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+  const mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+  document.getElementById('cd-days').textContent = days;
+  document.getElementById('cd-hours').textContent = hours;
+  document.getElementById('cd-mins').textContent = mins;
+}
+updateCountdown();
+setInterval(updateCountdown, 60000);
+
+// Tabs
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// Checklist
+function toggleCheck(row) {
+  const cb = row.querySelector('.checkbox');
+  const txt = row.querySelector('.check-text');
+  cb.classList.toggle('checked');
+  txt.classList.toggle('done');
+  saveChecklist();
+  updateProgress();
+}
+
+function updateProgress() {
+  const all = document.querySelectorAll('.checkbox').length;
+  const done = document.querySelectorAll('.checkbox.checked').length;
+  const pct = all ? Math.round(done/all*100) : 0;
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('fill').style.width = pct + '%';
+}
+
+function saveChecklist() {
+  const states = Array.from(document.querySelectorAll('.checkbox')).map(cb => cb.classList.contains('checked'));
+  localStorage.setItem('ap_checklist', JSON.stringify(states));
+}
+
+function loadChecklist() {
+  try {
+    const states = JSON.parse(localStorage.getItem('ap_checklist') || '[]');
+    const boxes = document.querySelectorAll('.checkbox');
+    const texts = document.querySelectorAll('.check-text');
+    states.forEach((s, i) => {
+      if (s && boxes[i]) { boxes[i].classList.add('checked'); texts[i].classList.add('done'); }
+    });
+    updateProgress();
+  } catch(e) {}
+}
+loadChecklist();
+
+// Notizen
+function saveNote() {
+  localStorage.setItem('ap_note', document.getElementById('noteText').value);
+  const msg = document.getElementById('savedMsg');
+  msg.textContent = '✓ Gespeichert';
+  setTimeout(() => msg.textContent = '', 2000);
+}
+
+try {
+  const note = localStorage.getItem('ap_note');
+  if (note) document.getElementById('noteText').value = note;
+} catch(e) {}
+</script>
+</body>
+</html>
