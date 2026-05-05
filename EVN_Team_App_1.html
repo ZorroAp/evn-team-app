@@ -7,52 +7,40 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #F5F5F5; color: #414042; min-height: 100vh; }
-
   .app-header { background: white; padding: 1rem 1.25rem; border-bottom: 2px solid #29ABE2; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .app-header-top { display: flex; align-items: center; gap: 12px; }
-  .logo { display: flex; align-items: center; gap: 6px; }
+  .app-header-top { display: flex; align-items: center; gap: 6px; }
   .logo-dot { width: 12px; height: 12px; border-radius: 50%; }
   .logo-dot.blue { background: #29ABE2; }
   .logo-dot.green { background: #8DC63F; }
   .logo-text { font-size: 13px; color: #414042; font-weight: 500; }
-  .header-info { flex: 1; }
-  .header-title { font-size: 17px; font-weight: 600; color: #414042; }
+  .header-title { font-size: 17px; font-weight: 600; color: #414042; margin-top: 6px; }
   .header-sub { font-size: 12px; color: #888; margin-top: 2px; }
-
   .stats { display: flex; gap: 10px; padding: 1rem 1.25rem; background: white; border-bottom: 0.5px solid #E0E0E0; }
   .stat { flex: 1; text-align: center; padding: 0.6rem; background: #F5F7FA; border-radius: 10px; }
   .stat-num { font-size: 26px; font-weight: 600; color: #414042; }
   .stat-num.green { color: #8DC63F; }
   .stat-num.blue { color: #29ABE2; }
   .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
-
   .progress-bar-wrap { height: 4px; background: #E0E0E0; }
   .progress-bar { height: 4px; background: linear-gradient(90deg, #29ABE2, #8DC63F); transition: width 0.4s ease; }
-
   .list { padding: 0 1.25rem 5rem; }
-  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #888; padding: 1.1rem 0 0.4rem; border-bottom: 0.5px solid #E0E0E0; margin-bottom: 0.1rem; }
-
-  .person-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #F0F0F0; cursor: pointer; transition: background 0.1s; border-radius: 8px; }
+  .person-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid #F0F0F0; cursor: pointer; border-radius: 8px; }
   .person-row:active { background: #F5F7FA; }
   .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; background: #E8F7FC; color: #29ABE2; transition: all 0.2s; }
   .avatar.yes { background: #F2F9E7; color: #8DC63F; }
   .person-info { flex: 1; }
-  .person-name { font-size: 15px; color: #414042; transition: all 0.2s; }
+  .person-name { font-size: 15px; color: #414042; }
   .person-name.done { text-decoration: line-through; color: #AAAAAA; }
   .person-station { font-size: 12px; color: #888; margin-top: 2px; }
-
   .toggle { width: 44px; height: 26px; border-radius: 13px; background: #E0E0E0; position: relative; flex-shrink: 0; transition: background 0.25s; }
   .toggle.on { background: #8DC63F; }
   .toggle-dot { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.25s; }
   .toggle.on .toggle-dot { transform: translateX(18px); }
-
-  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 0.5px solid #E0E0E0; padding: 0.75rem 1.25rem; display: flex; gap: 10px; }
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 0.5px solid #E0E0E0; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 10px; }
   .reset-btn { flex: 1; padding: 10px; border: 1px solid #E0E0E0; border-radius: 10px; background: white; color: #888; font-size: 14px; cursor: pointer; }
-  .reset-btn:active { background: #F5F5F5; }
-  .save-indicator { font-size: 12px; color: #8DC63F; display: flex; align-items: center; gap: 4px; opacity: 0; transition: opacity 0.3s; }
+  .save-indicator { font-size: 12px; color: #8DC63F; opacity: 0; transition: opacity 0.3s; }
   .save-indicator.show { opacity: 1; }
-
-  .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); background: #414042; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
+  .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); background: #414042; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; white-space: nowrap; }
   .toast.show { opacity: 1; }
 </style>
 </head>
@@ -60,36 +48,21 @@
 
 <div class="app-header">
   <div class="app-header-top">
-    <div class="logo">
-      <div class="logo-dot blue"></div>
-      <div class="logo-dot green"></div>
-      <div class="logo-text">animations planet</div>
-    </div>
+    <div class="logo-dot blue"></div>
+    <div class="logo-dot green"></div>
+    <div class="logo-text">animations planet</div>
   </div>
-  <div class="header-info" style="margin-top: 6px;">
-    <div class="header-title">EVN Mitarbeiterfest</div>
-    <div class="header-sub">07. Mai 2026 · Arena Nova, Wiener Neustadt</div>
-  </div>
+  <div class="header-title">EVN Mitarbeiterfest</div>
+  <div class="header-sub">07. Mai 2026 · Arena Nova, Wiener Neustadt</div>
 </div>
 
 <div class="stats">
-  <div class="stat">
-    <div class="stat-num" id="totalNum">0</div>
-    <div class="stat-label">Gesamt</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num green" id="confirmedNum">0</div>
-    <div class="stat-label">Zugesagt</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num blue" id="pendingNum">0</div>
-    <div class="stat-label">Ausstehend</div>
-  </div>
+  <div class="stat"><div class="stat-num" id="totalNum">0</div><div class="stat-label">Gesamt</div></div>
+  <div class="stat"><div class="stat-num green" id="confirmedNum">0</div><div class="stat-label">Zugesagt</div></div>
+  <div class="stat"><div class="stat-num blue" id="pendingNum">0</div><div class="stat-label">Ausstehend</div></div>
 </div>
 
-<div class="progress-bar-wrap">
-  <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
 
 <div class="list" id="list"></div>
 
@@ -97,86 +70,65 @@
   <button class="reset-btn" id="resetBtn">Alle zurücksetzen</button>
   <div class="save-indicator" id="saveIndicator">✓ Gespeichert</div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const STORAGE_KEY = 'evn_team_2026';
 
 const team = [
-  { section: "Fotostationen" },
-  { id: "roli", name: "Roli", station: "Green Box" },
-  { id: "carina", name: "Carina", station: "Green Box" },
-  { id: "amelie", name: "Amelie", station: "Green Box" },
-  { id: "lina", name: "Lina", station: "Spiegel" },
-  { id: "alina", name: "Alina", station: "Spiegel" },
-  { id: "paulo", name: "Paulo", station: "Neue Fotostation" },
-  { id: "lando", name: "Lando", station: "Neue Fotostation" },
-  { section: "Akkreditierung" },
   { id: "aleks", name: "Aleks", station: "Akkreditierung" },
-  { id: "karoline", name: "Karoline", station: "Akkreditierung" },
-  { id: "marvie", name: "Marvie", station: "Akkreditierung" },
-  { id: "sophie", name: "Sophie", station: "Akkreditierung" },
-  { id: "matthaus", name: "Matthäus", station: "Akkreditierung" },
+  { id: "alina", name: "Alina", station: "Spiegel" },
+  { id: "amelie", name: "Amelie", station: "Green Box" },
   { id: "anna", name: "Anna", station: "Akkreditierung" },
-  { id: "noora", name: "Noora", station: "Akkreditierung" },
-  { section: "Stationen" },
-  { id: "haddy", name: "Haddy", station: "Insta-Äffchen" },
-  { id: "felix", name: "Felix", station: "Insta-Äffchen" },
-  { id: "paul", name: "Paul", station: "A oder B (Buzzerspiel)" },
   { id: "annina", name: "Annina", station: "Stressfaktoren abschießen" },
-  { id: "david", name: "David", station: "Heißer Draht & Hau den Lukas" },
-  { id: "nikki", name: "Nikki", station: "EVN Generationen" },
-  { id: "sophia", name: "Sophia", station: "Heiteres Berufe raten" },
+  { id: "carina", name: "Carina", station: "Green Box" },
   { id: "christa", name: "Christa", station: "Rap Workshop" },
-  { id: "tina", name: "Tina", station: "Speakers Corner" },
+  { id: "david", name: "David", station: "Heißer Draht & Hau den Lukas" },
+  { id: "felix", name: "Felix", station: "Insta-Äffchen" },
+  { id: "haddy", name: "Haddy", station: "Insta-Äffchen" },
   { id: "joachim", name: "Joachim", station: "Gemeinschafts-Duplo bauen" },
-  { section: "Springer" },
-  { id: "nina", name: "Nina", station: "Springer" },
+  { id: "karoline", name: "Karoline", station: "Akkreditierung" },
+  { id: "lando", name: "Lando", station: "Neue Fotostation" },
   { id: "lilli", name: "Lilli", station: "Springer" },
+  { id: "lina", name: "Lina", station: "Spiegel" },
+  { id: "marvie", name: "Marvie", station: "Akkreditierung" },
+  { id: "matthaus", name: "Matthäus", station: "Akkreditierung" },
+  { id: "nikki", name: "Nikki", station: "EVN Generationen" },
+  { id: "nina", name: "Nina", station: "Springer" },
+  { id: "noora", name: "Noora", station: "Akkreditierung" },
+  { id: "paul", name: "Paul", station: "A oder B (Buzzerspiel)" },
+  { id: "paulo", name: "Paulo", station: "Neue Fotostation" },
+  { id: "roli", name: "Roli", station: "Green Box" },
+  { id: "sophia", name: "Sophia", station: "Heiteres Berufe raten" },
+  { id: "sophie", name: "Sophie", station: "Akkreditierung" },
+  { id: "tina", name: "Tina", station: "Speakers Corner" },
 ];
 
 let confirmed = {};
 
 function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) confirmed = JSON.parse(raw);
-  } catch(e) { confirmed = {}; }
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) confirmed = JSON.parse(r); } catch(e) {}
 }
-
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(confirmed));
-    const ind = document.getElementById('saveIndicator');
-    ind.classList.add('show');
-    setTimeout(() => ind.classList.remove('show'), 2000);
+    const i = document.getElementById('saveIndicator');
+    i.classList.add('show');
+    setTimeout(() => i.classList.remove('show'), 2000);
   } catch(e) {}
 }
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
-
-function getInitials(name) {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
-}
-
-function toggle(id, name) {
-  confirmed[id] = !confirmed[id];
-  save();
-  render();
-  if (confirmed[id]) showToast(name + ' hat zugesagt ✓');
-}
+function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2); }
+function toggle(id, name) { confirmed[id] = !confirmed[id]; save(); render(); if (confirmed[id]) showToast(name + ' hat zugesagt ✓'); }
 
 function render() {
-  const persons = team.filter(t => t.id);
-  const total = persons.length;
-  const done = persons.filter(p => confirmed[p.id]).length;
-
+  const total = team.length;
+  const done = team.filter(p => confirmed[p.id]).length;
   document.getElementById('totalNum').textContent = total;
   document.getElementById('confirmedNum').textContent = done;
   document.getElementById('pendingNum').textContent = total - done;
@@ -184,41 +136,28 @@ function render() {
 
   const container = document.getElementById('list');
   container.innerHTML = '';
-
   team.forEach(item => {
-    if (item.section) {
-      const s = document.createElement('div');
-      s.className = 'section-label';
-      s.textContent = item.section;
-      container.appendChild(s);
-    } else {
-      const isOn = !!confirmed[item.id];
-      const row = document.createElement('div');
-      row.className = 'person-row';
-      row.innerHTML = `
-        <div class="avatar${isOn ? ' yes' : ''}">${getInitials(item.name)}</div>
-        <div class="person-info">
-          <div class="person-name${isOn ? ' done' : ''}">${item.name}</div>
-          <div class="person-station">${item.station}</div>
-        </div>
-        <div class="toggle${isOn ? ' on' : ''}"><div class="toggle-dot"></div></div>
-      `;
-      row.addEventListener('click', () => toggle(item.id, item.name));
-      container.appendChild(row);
-    }
+    const isOn = !!confirmed[item.id];
+    const row = document.createElement('div');
+    row.className = 'person-row';
+    row.innerHTML = `
+      <div class="avatar${isOn ? ' yes' : ''}">${getInitials(item.name)}</div>
+      <div class="person-info">
+        <div class="person-name${isOn ? ' done' : ''}">${item.name}</div>
+        <div class="person-station">${item.station}</div>
+      </div>
+      <div class="toggle${isOn ? ' on' : ''}"><div class="toggle-dot"></div></div>
+    `;
+    row.addEventListener('click', () => toggle(item.id, item.name));
+    container.appendChild(row);
   });
 }
 
 document.getElementById('resetBtn').addEventListener('click', () => {
-  if (confirm('Alle Bestätigungen zurücksetzen?')) {
-    confirmed = {};
-    save();
-    render();
-  }
+  if (confirm('Alle Bestätigungen zurücksetzen?')) { confirmed = {}; save(); render(); }
 });
 
-load();
-render();
+load(); render();
 </script>
 </body>
 </html>
